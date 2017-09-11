@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+        TOKEN<input type="text" id="token" "name"="token"><br>
+        LOGIN<input type="text" id="email" "name"="email"><br>
+        PASSWORD<input type="text" id="password" "name"="password"><br>
+        <a href="#" id="logar">Logar</a><br>
+        <a href="#" id="get-authenticated-user">Obter Usuário Autenticado pelo Token</a><br>
+        <a href="#" id="nao-protegida">Não Protegida</a><br>
+        <a href="#" id="protegida">Protegida</a><br>
+        <div id="resultado">
+            Resultado aqui
+        </div>
+    
+    <script
+    src="https://code.jquery.com/jquery-3.2.1.js"
+    integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+    crossorigin="anonymous"></script>
+</head>
+<body>
+    <script>
+        $( document ).ready(function() {
+            var URL_LARAVEL = "http://localhost:8000";
+            // Limpa o LocalStorage quando entra
+            localStorage.setItem("token", '');
+
+            $('#logar').click(function(){
+                var data = {
+                    "email" : $('#email').val(),
+                    "password": $('#password').val()
+
+                }; 
+                console.log(data);
+                
+                $.ajax({
+                    type: "post",
+                    url: URL_LARAVEL + "/api/authenticate",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    data: data,
+                    success: function (response){
+                        console.log(response);
+                        console.log(response.token);
+                        $('#token').val(response.token);
+                        localStorage.setItem("token", response.token);
+                    }
+                    });
+                
+            });
+
+            $('#get-authenticated-user').click(function(){
+                var data = {
+                    "name": "Diogo"
+                }; 
+                console.log(data);
+                $.ajax({
+                    type: "GET",
+                    url: URL_LARAVEL + "/api/get-authenticated-user",
+                    headers: {
+                        "Accept": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("token")
+                    },
+                    data: data,
+                    success: function (response){
+                        console.log(response);
+                        $('#resultado').html(JSON.stringify(response));
+                    }
+                    });
+                
+            });
+
+            $('#nao-protegida').click(function(){
+                var data = {}; 
+                console.log(data);
+                $.ajax({
+                    type: "GET",
+                    url: URL_LARAVEL + "/api/nao-protegida",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                    data: data,
+                    success: function (response){
+                        console.log(response);
+                        $('#resultado').html(JSON.stringify(response));
+                    }
+                    });
+                
+            });
+
+            $('#protegida').click(function(){
+                var data = {
+                    "name": "Teste"
+                }; 
+                console.log(data);
+                $.ajax({
+                    type: "GET",
+                    url: URL_LARAVEL + "/api/protegida",
+                    headers: {
+                        "Accept": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("token")
+                    },
+                    data: data,
+                    success: function (response){
+                        console.log(response);
+                        $('#resultado').html(JSON.stringify(response));
+                    }
+                    });
+            });
+           
+        });
+    </script>
+</body>
+</html>
